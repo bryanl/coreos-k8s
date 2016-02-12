@@ -68,3 +68,7 @@ resource "template_file" "node" {
     master_ip = "${digitalocean_droplet.master.ipv4_address_private}"
   }
 }
+
+output "server" {
+  value = "http://${digitalocean_droplet.master.ipv4_address_public}:8080"
+}
