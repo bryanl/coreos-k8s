@@ -7,13 +7,13 @@ write-files:
       # [w]ait [u]ntil [p]ort [i]s [a]ctually [o]pen
       [ -n "$1" ] && [ -n "$2" ] && while ! curl --output /dev/null \
         --silent --head --fail \
-        http://${1}:${2}; do sleep 1 && echo -n .; done;
+        http://$${1}:$${2}; do sleep 1 && echo -n .; done;
       exit $?
 coreos:
   etcd2:
-    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    initial-cluster: master=http://10.137.128.235:2380
+    listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001
+    advertise-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001
+    initial-cluster: ${initial_cluster}
     proxy: on
   fleet:
     metadata: "role=node"
@@ -88,7 +88,7 @@ coreos:
         --allow-privileged=true \
         --cluster-dns=10.100.0.10 \
         --cluster-domain=cluster.local \
-        --hostname-override=$${DEFAULT_IPV4} \
+        --hostname-override=$${DEFAULT_IPV6} \
         --logtostderr=true \
         --cadvisor-port=4194 \
         --healthz-bind-address=0.0.0.0 \

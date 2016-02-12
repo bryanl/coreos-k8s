@@ -1,5 +1,15 @@
 variable "project" {}
 
+variable "etcd_peer_proto" {
+  type = "string"
+  default = "http"
+}
+
+variable "etcd_peer_port" {
+  type = "string"
+  default = "2380"
+}
+
 resource "digitalocean_droplet" "master" {
   count = "3"
   image = "coreos-beta"
@@ -47,6 +57,7 @@ resource "digitalocean_droplet" "node" {
   ssh_keys = [
     "${var.ssh_fingerprint}"
   ]
+  user_data = "${template_file.node.rendered}"
 
   connection {
     user = "core"
@@ -65,5 +76,6 @@ resource "template_file" "node" {
 
   vars {
     network = "10.244.0.0/16"
+    initial_cluster = "${join(",", formatlist("%s=%s://%s:%s", digitalocean_droplet.master.*.name, var.etcd_peer_proto, digitalocean_droplet.master.*.ipv4_address_private, var.etcd_peer_port))}"
   }
 }
