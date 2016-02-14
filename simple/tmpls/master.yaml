@@ -17,19 +17,25 @@ write-files:
         done;
       exit $?
 
-hostname: master
 coreos:
   etcd2:
     name: master
-    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    advertise-client-urls: http://$private_ipv4:2379,http://$private_ipv4:4001
-    initial-cluster-token: k8s_etcd
-    listen-peer-urls: http://$private_ipv4:2380,http://$private_ipv4:7001
-    initial-advertise-peer-urls: http://$private_ipv4:2380
-    initial-cluster: master=http://$private_ipv4:2380
+    advertise-client-urls: https://$private_ipv4:2379,https://$private_ipv4:4001
+    initial-advertise-peer-urls: ${etcd_peer_proto}://$private_ipv4:${etcd_peer_port}
+    initial-cluster: master=${etcd_peer_proto}://$private_ipv4:${etcd_peer_port}
     initial-cluster-state: new
+    initial-cluster-token: k8s_etcd
+    listen-client-urls: https://0.0.0.0:2379,https://0.0.0.0:4001
+    listen-peer-urls: ${etcd_peer_proto}://$private_ipv4:${etcd_peer_port}
+    peer-cert-file: /etc/ssl/etcd/etcd.pem
+    peer-key-file: /etc/ssl/etcd/etcd.key
+    peer-trusted-ca-file: /etc/ssl/etcd/ca.pem
+    trusted-ca-file: /etc/ssl/etcd/ca.pem
+    cert-file: /etc/ssl/etcd/etcd.pem
+    key-file: /etc/ssl/etcd/etcd.key
   fleet:
     metadata: "role=master"
+    etcd_endpoints: http://localhost:2379
   units:
     - name: generate-serviceaccount-key.service
       command: start

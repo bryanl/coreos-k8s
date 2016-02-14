@@ -11,12 +11,14 @@ write-files:
       exit $?
 coreos:
   etcd2:
-    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    advertise-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
-    initial-cluster: master=http://${master_ip}:2380
     proxy: on
+    initial-cluster: master=${etcd_peer_proto}://${master_ip}:${etcd_peer_port}
+    peer-cert-file: /etc/ssl/etcd/etcd.pem
+    peer-key-file: /etc/ssl/etcd/etcd.key
+    peer-trusted-ca-file: /etc/ssl/etcd/ca.pem
   fleet:
     metadata: "role=node"
+    etcd_endpoints: http://localhost:2379
   units:
     - name: fleet.service
       command: start
