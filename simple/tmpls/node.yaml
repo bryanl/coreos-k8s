@@ -18,19 +18,24 @@ coreos:
     peer-trusted-ca-file: /etc/ssl/etcd/ca.pem
   fleet:
     metadata: "role=node"
+    etcd_servers: http://localhost:2379
+    etcd_cafile: /etc/ssl/etcd/ca.pem
+    public_ip: $private_ipv4
+  flannel:
     etcd_endpoints: http://localhost:2379
+    etcd_cafile: /etc/ssl/etcd/ca.pem
+    etcd_keyfile: /etc/ssl/etcd/etcd.key
+    etcd_certfile: /etc/ssl/etcd/etcd.pem
+    interface: eth1
+    public_ip: $private_ipv4
+  locksmith:
+    endpoint: http://localhost:2379
+    etcd_cafile: /etc/ssl/etcd/ca.pem
   units:
     - name: fleet.service
       command: start
     - name: flanneld.service
       command: start
-      drop-ins:
-        - name: 50-network-config.conf
-          content: |
-            [Unit]
-            Requires=etcd2.service
-            [Service]
-            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"${flannel_network}", "Backend": {"Type": "vxlan"}}'
     - name: docker.service
       command: start
     - name: setup-network-environment.service

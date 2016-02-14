@@ -16,7 +16,20 @@ write-files:
           sleep 1 && echo .;
         done;
       exit $?
-
+  - path: /etc/etcd-config.json
+    permission: '0644'
+    content: |
+      {
+        "cluster": {
+          "machines": [ "https://127.0.0.1:2379" ]
+        },
+        "config": {
+          "caCertFiles": [ "/etc/ssl/etcd/ca.pem" ],
+          "certFile": "/etc/ssl/etcd/etcd.pem",
+          "keyFile": "/etc/ssl/etcd/etcd.key",
+          "timeout": 1000000000
+        }
+      }
 coreos:
   etcd2:
     name: master
@@ -35,7 +48,19 @@ coreos:
     key-file: /etc/ssl/etcd/etcd.key
   fleet:
     metadata: "role=master"
-    etcd_endpoints: http://localhost:2379
+    etcd_servers: https://localhost:2379
+    etcd_cafile: /etc/ssl/etcd/ca.pem
+    public_ip: $private_ipv4
+  flannel:
+    etcd_endpoints: https://localhost:2379
+    etcd_cafile: /etc/ssl/etcd/ca.pem
+    etcd_keyfile: /etc/ssl/etcd/etcd.key
+    etcd_certfile: /etc/ssl/etcd/etcd.pem
+    interface: eth1
+    public_ip: $private_ipv4
+  locksmith:
+    endpoint: http://localhost:2379
+    etcd_cafile: /etc/ssl/etcd/ca.pem
   units:
     - name: generate-serviceaccount-key.service
       command: start
@@ -74,7 +99,7 @@ coreos:
             [Unit]
             Requires=etcd2.service
             [Service]
-            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"${flannel_network}", "Backend": {"Type": "vxlan"}}'
+            ExecStartPre=/usr/bin/etcdctl --ca-file /etc/ssl/etcd/ca.pem --endpoint https://127.0.0.1:2379 set /coreos.com/network/config '{"Network":"${flannel_network}", "Backend": {"Type": "vxlan"}}'
     - name: docker.service
       command: start
     - name: kube-apiserver.service
@@ -103,6 +128,7 @@ coreos:
         --kubelet-https=true \
         --secure-port=6443 \
         --service-cluster-ip-range=10.100.0.0/16 \
+        --etcd_config=/etc/etcd-config.json
         --etcd-servers=http://127.0.0.1:2379 \
         --public-address-override=$${DEFAULT_IPV4} \
         --logtostderr=true

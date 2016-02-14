@@ -14,3 +14,5 @@ chmod 644 ${etcd_ssl_dir}/*.pem
 chmod 600 ${etcd_ssl_dir}/*.key
 
 systemctl restart etcd2.service
+systemctl restart flanneld.service
+
