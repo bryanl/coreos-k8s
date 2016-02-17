@@ -9,28 +9,32 @@ write-files:
         --silent --head --fail \
         http://$${1}:$${2}; do sleep 1 && echo -n .; done;
       exit $?
+  - path: /etc/profile.d/etcdctl.sh
+    content: |
+      export ETCDCTL_ENDPOINT=${etcd_endpoints}
+      export ETCDCTL_CERT_FILE=/etc/ssl/etcd/client.pem
+      export ETCDCTL_KEY_FILE=/etc/ssl/etcd/client.key
+      export ETCDCTL_CA_FILE=/etc/ssl/etcd/ca.pem
 coreos:
-  etcd2:
-    proxy: on
-    initial-cluster: master=${etcd_peer_proto}://${master_ip}:${etcd_peer_port}
-    peer-cert-file: /etc/ssl/etcd/etcd.pem
-    peer-key-file: /etc/ssl/etcd/etcd.key
-    peer-trusted-ca-file: /etc/ssl/etcd/ca.pem
   fleet:
     metadata: "role=node"
-    etcd_servers: http://localhost:2379
+    etcd_servers: ${etcd_endpoints}
     etcd_cafile: /etc/ssl/etcd/ca.pem
+    etcd_certfile: /etc/ssl/etcd/client.pem
+    etcd_keyfile: /etc/ssl/etcd/client.key    
     public_ip: $private_ipv4
   flannel:
-    etcd_endpoints: http://localhost:2379
+    etcd_endpoints: ${etcd_endpoints}
     etcd_cafile: /etc/ssl/etcd/ca.pem
-    etcd_keyfile: /etc/ssl/etcd/etcd.key
-    etcd_certfile: /etc/ssl/etcd/etcd.pem
+    etcd_keyfile: /etc/ssl/etcd/client.pem
+    etcd_certfile: /etc/ssl/etcd/client.key
     interface: eth1
     public_ip: $private_ipv4
   locksmith:
     endpoint: http://localhost:2379
     etcd_cafile: /etc/ssl/etcd/ca.pem
+    etcd_keyfile: /etc/ssl/etcd/client.pem
+    etcd_certfile: /etc/ssl/etcd/client.key
   units:
     - name: fleet.service
       command: start

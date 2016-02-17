@@ -2,6 +2,18 @@ variable "project" {
   description = "project name"
 }
 
+variable "etcd_client_port" {
+  description = "etcd client port"
+  type = "string"
+  default = "2379"
+}
+
+variable "etcd_client_proto" {
+  description = "etcd client protocol"
+  type = "string"
+  default = "https"
+}
+
 variable "etcd_peer_port" {
   description = "etcd peer port"
   type = "string"

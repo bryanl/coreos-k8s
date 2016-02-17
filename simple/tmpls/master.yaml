@@ -30,6 +30,19 @@ write-files:
           "timeout": 1000000000
         }
       }
+  - path: /etc/profile.d/etcdctl.sh
+    content: |
+      export ETCDCTL_ENDPOINT=https://127.0.0.1:2379
+      export ETCDCTL_CERT_FILE=/etc/ssl/etcd/etcd.pem
+      export ETCDCTL_KEY_FILE=/etc/ssl/etcd/etcd.key
+      export ETCDCTL_CA_FILE=/etc/ssl/etcd/ca.pem
+  - path: /etc/etcdctl-environment
+    content: |
+      ETCDCTL_ENDPOINT=https://127.0.0.1:2379
+      ETCDCTL_CERT_FILE=/etc/ssl/etcd/etcd.pem
+      ETCDCTL_KEY_FILE=/etc/ssl/etcd/etcd.key
+      ETCDCTL_CA_FILE=/etc/ssl/etcd/ca.pem
+
 coreos:
   etcd2:
     name: master
@@ -46,6 +59,7 @@ coreos:
     trusted-ca-file: /etc/ssl/etcd/ca.pem
     cert-file: /etc/ssl/etcd/etcd.pem
     key-file: /etc/ssl/etcd/etcd.key
+    client-cert-auth: "true"
   fleet:
     metadata: "role=master"
     etcd_servers: https://localhost:2379
@@ -99,7 +113,8 @@ coreos:
             [Unit]
             Requires=etcd2.service
             [Service]
-            ExecStartPre=/usr/bin/etcdctl --ca-file /etc/ssl/etcd/ca.pem --endpoint https://127.0.0.1:2379 set /coreos.com/network/config '{"Network":"${flannel_network}", "Backend": {"Type": "vxlan"}}'
+            EnvironmentFile=/etc/etcdctl-environment
+            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"${flannel_network}", "Backend": {"Type": "vxlan"}}'
     - name: docker.service
       command: start
     - name: kube-apiserver.service

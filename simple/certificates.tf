@@ -1,3 +1,6 @@
+#################################
+# Node etcd client certificate
+#################################
 resource "tls_private_key" "node" {
   count = "${var.node_count}"
   algorithm = "RSA"
@@ -32,11 +35,13 @@ resource "tls_locally_signed_cert" "node" {
     "cert_signing",
     "key_encipherment",
     "digital_signature",
-    "server_auth",
     "client_auth"
   ]
 }
 
+#################################
+# Master etcd peer certificate
+#################################
 resource "tls_locally_signed_cert" "master" {
   cert_request_pem = "${tls_cert_request.master.cert_request_pem}"
 
@@ -65,7 +70,7 @@ resource "tls_cert_request" "master" {
   }
 
   ip_addresses = ["127.0.0.1", "${digitalocean_droplet.master.ipv4_address_private}"]
-  dns_names = ["${digitalocean_droplet.master.name}", "${digitalocean_droplet.master.name}"]
+  dns_names = ["${digitalocean_droplet.master.name}", "${digitalocean_droplet.master.name}.local"]
 }
 
 resource "tls_private_key" "master" {
@@ -73,6 +78,49 @@ resource "tls_private_key" "master" {
   rsa_bits = "2048"
 }
 
+#################################
+# Master etcd peer certificate
+#################################
+resource "tls_locally_signed_cert" "master_client" {
+  cert_request_pem = "${tls_cert_request.master_client.cert_request_pem}"
+
+  ca_key_algorithm = "RSA"
+  ca_private_key_pem = "${tls_private_key.ca.private_key_pem}"
+  ca_cert_pem = "${tls_self_signed_cert.ca.cert_pem}"
+
+  validity_period_hours = 8760
+
+  allowed_uses = [
+    "cert_signing",
+    "key_encipherment",
+    "digital_signature",
+    "client_auth"
+  ]
+}
+
+resource "tls_cert_request" "master_client" {
+  key_algorithm = "RSA"
+  private_key_pem = "${tls_private_key.master_client.private_key_pem}"
+
+  subject {
+    common_name = "${digitalocean_droplet.master.name}"
+    organization = "k8s simple"
+  }
+
+  ip_addresses = ["127.0.0.1", "${digitalocean_droplet.master.ipv4_address_private}"]
+  dns_names = ["${digitalocean_droplet.master.name}", "${digitalocean_droplet.master.name}.local"]
+}
+
+resource "tls_private_key" "master_client" {
+  algorithm = "RSA"
+  rsa_bits = "2048"
+}
+
+
+
+#################################
+# CA certificate
+#################################
 resource "tls_self_signed_cert" "ca" {
   key_algorithm = "RSA"
   private_key_pem = "${tls_private_key.ca.private_key_pem}"
