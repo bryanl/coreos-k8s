@@ -3,3 +3,4 @@ terraform.tfstate.backup
 terraform.tfstate
 ansible.cfg
 ha-1/etcd_discovery_url.txt
+simple/crash.log
