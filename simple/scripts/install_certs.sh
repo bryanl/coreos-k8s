@@ -9,8 +9,8 @@ mkdir -p $etcd_ssl_dir
 mv /home/core/ca.pem ${etcd_ssl_dir}/ca.pem
 mv /home/core/etcd.pem ${etcd_ssl_dir}/etcd.pem
 mv /home/core/etcd.key ${etcd_ssl_dir}/etcd.key
-mv /home/core/etcd.pem ${etcd_ssl_dir}/client.pem
-mv /home/core/etcd.key ${etcd_ssl_dir}/client.key
+mv /home/core/client.pem ${etcd_ssl_dir}/client.pem
+mv /home/core/client.key ${etcd_ssl_dir}/client.key
 
 chown etcd:wheel ${etcd_ssl_dir}/*
 chmod 644 ${etcd_ssl_dir}/*.pem

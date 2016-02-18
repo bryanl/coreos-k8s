@@ -25,16 +25,16 @@ write-files:
         },
         "config": {
           "caCertFiles": [ "/etc/ssl/etcd/ca.pem" ],
-          "certFile": "/etc/ssl/etcd/etcd.pem",
-          "keyFile": "/etc/ssl/etcd/etcd.key",
+          "certFile": "/etc/ssl/etcd/client.pem",
+          "keyFile": "/etc/ssl/etcd/client.key",
           "timeout": 1000000000
         }
       }
   - path: /etc/profile.d/etcdctl.sh
     content: |
       export ETCDCTL_ENDPOINT=https://127.0.0.1:2379
-      export ETCDCTL_CERT_FILE=/etc/ssl/etcd/etcd.pem
-      export ETCDCTL_KEY_FILE=/etc/ssl/etcd/etcd.key
+      export ETCDCTL_CERT_FILE=/etc/ssl/etcd/client.pem
+      export ETCDCTL_KEY_FILE=/etc/ssl/etcd/client.key
       export ETCDCTL_CA_FILE=/etc/ssl/etcd/ca.pem
   - path: /etc/etcdctl-environment
     content: |
@@ -62,19 +62,23 @@ coreos:
     client-cert-auth: "true"
   fleet:
     metadata: "role=master"
-    etcd_servers: https://localhost:2379
+    etcd_servers: https://127.0.0.1:2379
     etcd_cafile: /etc/ssl/etcd/ca.pem
+    etcd_keyfile: /etc/ssl/etcd/client.key
+    etcd_certfile: /etc/ssl/etcd/client.pem
     public_ip: $private_ipv4
   flannel:
-    etcd_endpoints: https://localhost:2379
+    etcd_endpoints: https://127.0.0.1:2379
     etcd_cafile: /etc/ssl/etcd/ca.pem
-    etcd_keyfile: /etc/ssl/etcd/etcd.key
-    etcd_certfile: /etc/ssl/etcd/etcd.pem
+    etcd_keyfile: /etc/ssl/etcd/client.key
+    etcd_certfile: /etc/ssl/etcd/client.pem
     interface: eth1
     public_ip: $private_ipv4
   locksmith:
-    endpoint: http://localhost:2379
+    endpoint: https://127.0.0.1:2379
     etcd_cafile: /etc/ssl/etcd/ca.pem
+    etcd_keyfile: /etc/ssl/etcd/client.key
+    etcd_certfile: /etc/ssl/etcd/client.pem
   units:
     - name: generate-serviceaccount-key.service
       command: start
