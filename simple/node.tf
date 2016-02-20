@@ -39,6 +39,10 @@ resource "template_file" "node" {
 
 resource "null_resource" "node_etcd_tls" {
   count = "${var.node_count}"
+  
+  triggers {
+    cert_pem = "${element(tls_locally_signed_cert.node.*.cert_pem, count.index)}" 
+  }
 
   connection {
     user = "core"
@@ -55,7 +59,7 @@ resource "null_resource" "node_etcd_tls" {
       "EOF"
     ]
   }
-
+  
   provisioner "remote-exec" {
     inline = [
       "cat <<EOF > /home/core/client.key",

@@ -26,15 +26,15 @@ coreos:
   flannel:
     etcd_endpoints: ${etcd_endpoints}
     etcd_cafile: /etc/ssl/etcd/ca.pem
-    etcd_keyfile: /etc/ssl/etcd/client.pem
-    etcd_certfile: /etc/ssl/etcd/client.key
+    etcd_keyfile: /etc/ssl/etcd/client.key
+    etcd_certfile: /etc/ssl/etcd/client.pem
     interface: eth1
     public_ip: $private_ipv4
   locksmith:
-    endpoint: http://localhost:2379
+    endpoint: ${etcd_endpoints}
     etcd_cafile: /etc/ssl/etcd/ca.pem
-    etcd_keyfile: /etc/ssl/etcd/client.pem
-    etcd_certfile: /etc/ssl/etcd/client.key
+    etcd_keyfile: /etc/ssl/etcd/client.key
+    etcd_certfile: /etc/ssl/etcd/client.pem
   units:
     - name: fleet.service
       command: start

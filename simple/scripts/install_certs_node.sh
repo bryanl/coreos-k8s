@@ -12,9 +12,9 @@ done
 
 chown etcd:wheel ${etcd_ssl_dir}/*
 chmod 644 ${etcd_ssl_dir}/*.pem
-chmod 600 ${etcd_ssl_dir}/*.key
+chmod 644 ${etcd_ssl_dir}/client.key
 
-for i in fleet flanneld locksmithd; do
+for i in fleet flanneld; do
   systemctl restart $i.service
 done
 
