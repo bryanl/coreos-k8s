@@ -15,7 +15,7 @@ chmod 644 ${etcd_ssl_dir}/*.pem
 chmod 644 ${etcd_ssl_dir}/client.key
 
 for i in fleet flanneld; do
-  systemctl restart $i.service
+  sudo systemctl restart $i.service
 done
 
 

@@ -16,6 +16,6 @@ chown etcd:wheel ${etcd_ssl_dir}/*
 chmod 644 ${etcd_ssl_dir}/*.pem
 chmod 600 ${etcd_ssl_dir}/etcd.key
 
-systemctl restart etcd2.service
-systemctl restart flanneld.service
-
+for i in etcd2 flanneld kube-apiserver kube-controller-manager; do
+  sudo systemctl restart $i.service
+done
