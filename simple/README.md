@@ -17,3 +17,9 @@ kubectl config set-cluster <cluster-name> --server=http://master-ip/:8080
 kubectl config set-context <context-name> --name <cluster-name>
 kubectl use-conttext <context-name>
 ```
+
+TODO:
+
+* Add system namespace
+* Add DNS
+
